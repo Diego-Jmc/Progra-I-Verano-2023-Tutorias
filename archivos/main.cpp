@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <vector>
 #include <sstream>
 #include <list>
+#include "Fecha.h"
 
 using namespace std;
 
@@ -12,8 +12,19 @@ private:
     string nombre;
     int edad;
     bool esta_Casado;
+    Fecha *f;
 public:
-    Persona(const string &nombre, int edad, bool estaCasado) : nombre(nombre), edad(edad), esta_Casado(estaCasado) {}
+
+    Persona(const string &nombre, int edad, bool estaCasado, Fecha *f) : nombre(nombre), edad(edad),
+                                                                         esta_Casado(estaCasado), f(f) {}
+
+    Fecha *getF() const {
+        return f;
+    }
+
+    void setF(Fecha *f) {
+        Persona::f = f;
+    }
 
     Persona() {}
 
@@ -46,6 +57,7 @@ public:
         s<< "Nombre: "<< nombre << endl;
         s<< "Edad: "<< edad << endl;
         s<< "Casdo: "<< esta_Casado << endl;
+        s<< "Fecha de nacimiento: " << f->toString() << endl;
 
         return s.str();
     }
@@ -75,6 +87,7 @@ void guardarPersona(Persona *p,string filename){
         file<<"Nombre:"<<p->getNombre()<<endl;
         file<<"Edad:"<<p->getEdad()<<endl;
         file<<"Casado:"<<p->isEstaCasado();
+
     }
 
     file.close();
@@ -89,7 +102,7 @@ list<Persona*> * getPersonasFromArchivo(string filename){
     stringstream s;
 
 
-    string nombre,edad,casado,line,aux;
+    string nombre,edad,casado,line,aux,fecha;
 
 
     if(file.is_open()){
@@ -114,7 +127,10 @@ list<Persona*> * getPersonasFromArchivo(string filename){
 
             // en este punto ya tenemos los atributos del obejeto
 
-            Persona *p = new Persona(nombre, stoi(edad), stoi(casado));
+            getline(file,fecha);
+
+
+            Persona *p = new Persona(nombre, stoi(edad), stoi(casado), Fecha::parsearFechaString(fecha));
 
             listaPersonas->push_back(p);
 
@@ -132,12 +148,11 @@ list<Persona*> * getPersonasFromArchivo(string filename){
 
 int main() {
 
-    auto listaPersonas = getPersonasFromArchivo("personas.txt");
+   auto listaPersonas = getPersonasFromArchivo("personas.txt");
 
     for ( auto &persona : *listaPersonas){
         cout<< persona->toString() <<endl;
     }
-
 
     return 0;
 }
